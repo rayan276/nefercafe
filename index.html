@@ -31,8 +31,8 @@
         .logo-container img { max-width: 180px; border-radius: 15px; box-shadow: 0 0 20px rgba(130, 238, 253, 0.2); }
 
         /* Navegación por Pestañas */
-        .tabs { display: flex; gap: 10px; margin-bottom: 2px; width: 100%; max-width: 600px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: #252d33; color: #888; cursor: pointer; border-radius: 10px 10px 0 0; font-weight: 600; transition: 0.3s; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 2px; width: 100%; max-width: 600px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: #252d33; color: #888; cursor: pointer; border-radius: 10px 10px 0 0; font-weight: 600; transition: 0.3s; font-size: 0.85rem; }
         .tab-btn.active { background: var(--card-bg); color: var(--primary); border-bottom: 2px solid var(--primary); }
 
         .content-section { display: none; width: 100%; max-width: 600px; }
@@ -70,6 +70,22 @@
         .product-list th { text-align: left; border-bottom: 1px solid #333; padding: 10px; color: var(--primary); }
         .product-list td { padding: 10px; border-bottom: 1px solid #222; text-align: left; }
 
+        /* Estilos específicos para la sección Donaciones */
+        .donacion-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }
+        .donacion-table th { border-bottom: 1px solid #333; padding: 12px 8px; color: var(--primary); }
+        .donacion-table td { padding: 12px 8px; border-bottom: 1px solid #222; vertical-align: middle; }
+        
+        /* Clases para alinear y separar columnas de forma uniforme */
+        .col-center { text-align: center !important; }
+        
+        .donacion-img { width: 45px; height: 45px; object-fit: cover; border-radius: 8px; border: 1px solid #30363d; cursor: pointer; transition: 0.2s; display: inline-block; }
+        .donacion-img:hover { opacity: 0.8; transform: scale(1.05); }
+
+        /* Modal para ver la foto en grande */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(18, 24, 27, 0.9); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .modal-content { max-width: 90vw; max-height: 85vh; width: auto; height: auto; object-fit: contain; border-radius: 12px; border: 2px solid var(--primary); box-shadow: 0 0 30px rgba(130, 238, 253, 0.3); }
+        .close-modal { position: absolute; top: 20px; right: 30px; color: var(--primary); font-size: 2.5rem; font-weight: bold; cursor: pointer; z-index: 1001; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+
         .button-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .btn { padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; border: 1px solid; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-update { color: var(--primary); border-color: var(--primary); background: transparent; }
@@ -95,8 +111,10 @@
     <div class="tabs">
         <button class="tab-btn active" onclick="openTab('pos')">Ventas</button>
         <button class="tab-btn" onclick="openTab('calc')">Calculadora</button>
+        <button class="tab-btn" onclick="openTab('donaciones')">Donaciones</button>
     </div>
 
+    <!-- Pestaña Ventas -->
     <div id="pos" class="content-section active">
         <div class="card">
             <h2>Punto de Venta</h2>
@@ -124,6 +142,7 @@
         </div>
     </div>
 
+    <!-- Pestaña Calculadora -->
     <div id="calc" class="content-section">
         <div class="card">
             <h2>Calculadora BCV</h2>
@@ -147,6 +166,44 @@
         </div>
     </div>
 
+    <!-- Pestaña Donaciones -->
+    <div id="donaciones" class="content-section">
+        <div class="card">
+            <h2>Registro de Donaciones</h2>
+            <p class="subtitle">Control de aportes y productos recibidos</p>
+
+            <div style="overflow-x: auto;">
+                <table class="donacion-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 35%;">Descripción</th>
+                            <th style="width: 30%;">Donante</th>
+                            <th class="col-center" style="width: 15%;">Cant.</th>
+                            <th class="col-center" style="width: 20%;">Foto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaDonaciones">
+                        
+                        <tr>
+                            <td style="color: #aaa;">1 led amarillo</td>
+                            <td style="font-weight: 600; color: white;">nefer cafe</td>
+                            <td class="col-center" style="color: var(--primary); font-weight: bold;">1</td>
+                            <td class="col-center"><img src="donacion/led1.jpg" class="donacion-img" alt="Producto" onclick="verImagen(this.src)"></td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver la foto ampliada -->
+    <div id="imgModal" class="modal" onclick="cerrarModal()">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="imgAmpliada">
+    </div>
+
+    <!-- Sección Servicios Tecnológicos -->
     <div class="card card-services">
         <h2>Servicios Tecnológicos</h2>
         <div class="service-item"><i class="fas fa-laptop-medical"></i> Servicio técnico: Computadoras y Laptops</div>
@@ -237,6 +294,19 @@
             calcular(); actualizarTotalesPOS();
         }
     }
+
+    // Funciones para ver la imagen en grande (Modal)
+    function verImagen(url) {
+        const modal = document.getElementById('imgModal');
+        const img = document.getElementById('imgAmpliada');
+        img.src = url;
+        modal.style.display = 'flex';
+    }
+
+    function cerrarModal() {
+        document.getElementById('imgModal').style.display = 'none';
+    }
+
     window.onload = obtenerTasa;
 </script>
 </body>
